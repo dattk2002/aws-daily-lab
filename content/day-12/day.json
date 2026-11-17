@@ -1,0 +1,128 @@
+{
+  "day": 12,
+  "title": "Nghiệm thu tuyến chính và đóng lab",
+  "summary": "Kiểm tra ghi đọc qua ALB, thử DB lỗi và reboot, lưu bằng chứng rồi xử lý toàn bộ tài nguyên lab.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "12-1",
+      "title": "Smoke test toàn đường đi",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "ALB",
+        "EC2",
+        "RDS"
+      ],
+      "prerequisites": [
+        "11-5"
+      ],
+      "quiz": {
+        "question": "Bằng chứng nào kiểm tra được cả ghi và đọc DB qua tuyến public?",
+        "options": [
+          "POST /shorten trả 201 rồi GET /r/:code trả 302 đúng Location",
+          "Chỉ thấy EC2 running",
+          "Chỉ curl /health 200"
+        ],
+        "answer": 0,
+        "explanation": "Tạo link ghi DB, redirect đọc link đã lưu; hai request qua ALB kiểm tra tuyến thực phục vụ người dùng."
+      }
+    },
+    {
+      "id": "12-2",
+      "title": "Thử mất kết nối DB có khôi phục",
+      "minutes": 20,
+      "kind": "challenge",
+      "services": [
+        "RDS",
+        "Security Groups",
+        "ALB"
+      ],
+      "prerequisites": [
+        "12-1"
+      ],
+      "quiz": {
+        "question": "Vì sao bỏ SG rule DB chưa chắc ngắt pool đang mở ngay?",
+        "options": [
+          "RDS tự mở public port",
+          "SG có connection tracking cho kết nối đã thiết lập",
+          "ALB lưu toàn bộ database trong cache"
+        ],
+        "answer": 1,
+        "explanation": "Kết nối đang được theo dõi có thể còn tồn tại; cần đóng pool hoặc khởi động lại app lab để thử kết nối mới."
+      }
+    },
+    {
+      "id": "12-3",
+      "title": "Reboot và dữ liệu tồn tại",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "EC2",
+        "PM2",
+        "RDS"
+      ],
+      "prerequisites": [
+        "12-2"
+      ],
+      "quiz": {
+        "question": "EC2 đã pass status checks thì đã đủ xác nhận app hồi phục chưa?",
+        "options": [
+          "Đủ, không cần HTTP request nữa",
+          "Đủ nếu public IP không đổi",
+          "Chưa, cần readiness và luồng tạo/redirect thật"
+        ],
+        "answer": 2,
+        "explanation": "Status checks EC2 phản ánh các lớp hệ thống được kiểm tra; nghiệm thu app vẫn cần request qua tuyến người dùng."
+      }
+    },
+    {
+      "id": "12-4",
+      "title": "Hồ sơ bằng chứng có giới hạn rõ",
+      "minutes": 10,
+      "kind": "challenge",
+      "services": [
+        "CloudWatch",
+        "AWS Architecture"
+      ],
+      "prerequisites": [
+        "12-3"
+      ],
+      "quiz": {
+        "question": "Bản ghi nào đủ trung thực về trạng thái HTTPS?",
+        "options": [
+          "Chưa có domain, core HTTP đã kiểm tra; HTTPS chưa triển khai",
+          "HTTPS hoàn tất vì port 80 trả 200",
+          "HTTPS hoàn tất vì đã đọc tài liệu ACM"
+        ],
+        "answer": 0,
+        "explanation": "Chứng cứ phải phản ánh điều thực sự chạy, tách kết quả quan sát khỏi kiến thức hoặc kế hoạch."
+      }
+    },
+    {
+      "id": "12-5",
+      "title": "Teardown hoặc kế hoạch giữ có hạn",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "ALB",
+        "EC2",
+        "RDS",
+        "CloudWatch"
+      ],
+      "prerequisites": [
+        "12-4"
+      ],
+      "quiz": {
+        "question": "Xóa ALB có tự xóa EC2, RDS và mọi snapshot không?",
+        "options": [
+          "Có, ALB sở hữu toàn bộ hạ tầng",
+          "Không, phải kiểm kê và xử lý từng tài nguyên",
+          "Có, nếu đã đặt Budget"
+        ],
+        "answer": 1,
+        "explanation": "ALB không sở hữu vòng đời targets; EC2/RDS, EBS, snapshots và logs có thể còn tồn tại và có phí riêng."
+      }
+    }
+  ]
+}

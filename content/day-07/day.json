@@ -1,0 +1,124 @@
+{
+  "day": 7,
+  "title": "Triển khai Node.js và phục hồi sau reboot",
+  "summary": "Chạy demo nguyên gốc trên EC2 bằng user riêng, secrets ngoài Git và PM2 có kiểm chứng reboot.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "07-1",
+      "title": "Đặt mã nguồn dưới quyền user ứng dụng",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "EC2",
+        "Node.js"
+      ],
+      "prerequisites": [
+        "06-5"
+      ],
+      "quiz": {
+        "question": "Thư mục nào chứa package API demo cần cài trên EC2?",
+        "options": [
+          "Root của repository vì mọi package đều là API",
+          "/opt/aws-daily-lab/labs/url-shortener",
+          "/etc/nginx"
+        ],
+        "answer": 1,
+        "explanation": "Root package phục vụ UI; API demo có package riêng tại labs/url-shortener trong source đã triển khai."
+      }
+    },
+    {
+      "id": "07-2",
+      "title": "Giữ secrets ngoài Git và bật TLS cho app",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "EC2",
+        "RDS",
+        "Node.js"
+      ],
+      "prerequisites": [
+        "07-1"
+      ],
+      "quiz": {
+        "question": "Cặp cấu hình nào phù hợp RDS production trong lab?",
+        "options": [
+          "Credentials local lab/lab và tắt TLS",
+          "DATABASE_URL đầy đủ có verify-full cùng PGSSLROOTCERT tới CA đúng",
+          "Database URL trong public README để dễ copy"
+        ],
+        "answer": 1,
+        "explanation": "Ứng dụng cần credentials RDS riêng và CA/hostname được xác minh; file secrets runtime nằm ngoài repository."
+      }
+    },
+    {
+      "id": "07-3",
+      "title": "Cài dependencies và chạy thử foreground",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "07-2"
+      ],
+      "quiz": {
+        "question": "Health 200 nhưng ready 503 cho biết điều gì trong demo?",
+        "options": [
+          "Process HTTP sống nhưng kiểm tra database chưa thành công",
+          "Toàn bộ hệ thống đã sẵn sàng",
+          "Nginx chắc chắn đã dừng"
+        ],
+        "answer": 0,
+        "explanation": "Health chỉ liveness; ready kiểm tra DB nên cần điều tra mạng, TLS, credentials hoặc schema."
+      }
+    },
+    {
+      "id": "07-4",
+      "title": "Quản lý process và phục hồi sau reboot bằng PM2",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "EC2",
+        "PM2"
+      ],
+      "prerequisites": [
+        "07-3"
+      ],
+      "quiz": {
+        "question": "Muốn phục hồi process sau reboot cần kiểm tra những gì?",
+        "options": [
+          "Chỉ pm2 list trước reboot",
+          "Startup hook đúng user, pm2 save và thử reboot với health/ready",
+          "Chạy pm2 bằng root rồi chmod 777 secrets"
+        ],
+        "answer": 1,
+        "explanation": "Startup hook khởi động daemon và saved list khôi phục process; chỉ thử reboot thực tế mới chứng minh cấu hình hoạt động."
+      }
+    },
+    {
+      "id": "07-5",
+      "title": "Smoke test từ tạo link đến redirect",
+      "minutes": 10,
+      "kind": "challenge",
+      "services": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "07-4"
+      ],
+      "quiz": {
+        "question": "Sau POST /shorten thành công, GET /r/<code> đã biết phải có kết quả nào?",
+        "options": [
+          "200 với password database",
+          "302 và Location bằng URL đích",
+          "404 vì app chỉ lưu code trong RAM"
+        ],
+        "answer": 1,
+        "explanation": "Demo lưu mapping trong PostgreSQL và trả 302 cho mã tồn tại; mã không tồn tại mới trả 404."
+      }
+    }
+  ]
+}

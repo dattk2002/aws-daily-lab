@@ -1,0 +1,122 @@
+{
+  "day": 3,
+  "title": "Chạy ứng dụng local",
+  "summary": "Chạy demo Node.js/PostgreSQL gốc của repository và chứng minh tạo link, redirect cùng readiness.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "03-1",
+      "title": "Chuẩn bị Node.js và PostgreSQL local",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "02-5"
+      ],
+      "quiz": {
+        "question": "Lệnh nào kiểm tra PostgreSQL container đã nhận kết nối?",
+        "options": [
+          "docker compose exec db pg_isready -U lab -d lab",
+          "aws sts get-caller-identity",
+          "node --version"
+        ],
+        "answer": 0,
+        "explanation": "pg_isready kiểm tra server PostgreSQL; container đang chạy chưa chắc DB đã sẵn sàng."
+      }
+    },
+    {
+      "id": "03-2",
+      "title": "Biến môi trường và cấu hình local",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "03-1"
+      ],
+      "quiz": {
+        "question": "PUBLIC_BASE_URL trong demo dùng để làm gì?",
+        "options": [
+          "Tạo phần gốc của shortUrl trả về",
+          "Cấp quyền IAM",
+          "Thay thế mật khẩu DB"
+        ],
+        "answer": 0,
+        "explanation": "Ứng dụng dùng PUBLIC_BASE_URL để xây URL ngắn cho client; DATABASE_URL mới là cấu hình kết nối DB."
+      }
+    },
+    {
+      "id": "03-3",
+      "title": "Tạo schema và xác minh dữ liệu",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "03-2"
+      ],
+      "quiz": {
+        "question": "Ràng buộc nào ngăn hai hàng cùng code?",
+        "options": [
+          "DEFAULT now()",
+          "PRIMARY KEY trên code",
+          "Kiểu TEXT trên url"
+        ],
+        "answer": 1,
+        "explanation": "Khóa chính yêu cầu giá trị code duy nhất và không null; kiểu TEXT riêng không cung cấp tính duy nhất."
+      }
+    },
+    {
+      "id": "03-4",
+      "title": "API tạo link đầu tiên",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "03-3"
+      ],
+      "quiz": {
+        "question": "POST /shorten hợp lệ và ghi DB thành công phải trả gì?",
+        "options": [
+          "201 với code và shortUrl",
+          "302 về URL đích ngay",
+          "404 cho mọi URL"
+        ],
+        "answer": 0,
+        "explanation": "201 mô tả tài nguyên link vừa được tạo; redirect là đường GET /r/:code."
+      }
+    },
+    {
+      "id": "03-5",
+      "title": "Redirect, readiness và test",
+      "minutes": 20,
+      "kind": "challenge",
+      "services": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "03-4"
+      ],
+      "quiz": {
+        "question": "Khi DB local dừng nhưng tiến trình Node.js vẫn chạy, kết quả mong đợi là gì?",
+        "options": [
+          "/health 200 và /ready 503",
+          "Cả hai bắt buộc 404",
+          "/ready luôn 200 vì process còn sống"
+        ],
+        "answer": 0,
+        "explanation": "Liveness chỉ xác nhận HTTP process; readiness phải kiểm tra khả năng dùng DB."
+      }
+    }
+  ]
+}

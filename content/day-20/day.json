@@ -1,0 +1,128 @@
+{
+  "day": 20,
+  "title": "Capstone, bằng chứng và kết thúc tài nguyên",
+  "summary": "Hoàn thiện thiết kế URL shortener, chạy checklist kiểm thử có bằng chứng và teardown toàn bộ phạm vi lab.",
+  "track": "extension",
+  "lessons": [
+    {
+      "id": "20-1",
+      "title": "Capstone: thiết kế từ yêu cầu và ranh giới",
+      "minutes": 12,
+      "kind": "challenge",
+      "services": [
+        "VPC",
+        "EC2",
+        "RDS",
+        "ALB"
+      ],
+      "prerequisites": [
+        "19-5"
+      ],
+      "quiz": {
+        "question": "Thiết kế hai app AZ nhưng RDS Single-AZ cho phép kết luận nào?",
+        "options": [
+          "Toàn hệ thống không thể gián đoạn",
+          "Lớp app có thêm khả năng chịu mất một máy; DB vẫn là rủi ro riêng",
+          "Không còn cần backup"
+        ],
+        "answer": 1,
+        "explanation": "Khả năng chịu lỗi phải xét từng tầng; thêm app AZ không thay tính sẵn sàng hoặc khả năng phục hồi của DB."
+      }
+    },
+    {
+      "id": "20-2",
+      "title": "Capstone: checklist triển khai có điểm dừng",
+      "minutes": 18,
+      "kind": "lab",
+      "services": [
+        "EC2",
+        "RDS",
+        "ALB"
+      ],
+      "prerequisites": [
+        "20-1"
+      ],
+      "quiz": {
+        "question": "Sau khi local test tốt nhưng app EC2 /ready503, bước hợp lý là gì?",
+        "options": [
+          "Mở ngay ALB cho người dùng thật",
+          "Bỏ qua vì /health200",
+          "Dừng ở checkpoint DB/runtime và chẩn đoán trước khi nghiệm thu tuyến ngoài"
+        ],
+        "answer": 2,
+        "explanation": "Mỗi checkpoint bảo vệ bước sau; test local không chứng minh SG, TLS và secret runtime trên EC2."
+      }
+    },
+    {
+      "id": "20-3",
+      "title": "Capstone: đo, gây lỗi local và giải thích",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "RDS",
+        "CloudWatch"
+      ],
+      "prerequisites": [
+        "20-2"
+      ],
+      "quiz": {
+        "question": "Khi DB local dừng, /health200 nhưng /ready503 nói lên gì?",
+        "options": [
+          "Tiến trình sống nhưng phụ thuộc DB chưa sẵn sàng",
+          "Mọi request nghiệp vụ đều thành công",
+          "Nginx chắc chắn hỏng"
+        ],
+        "answer": 0,
+        "explanation": "Hai endpoint có trách nhiệm khác nhau; fault test phải quan sát cả liveness, readiness và nghiệp vụ."
+      }
+    },
+    {
+      "id": "20-4",
+      "title": "Capstone: hồ sơ bằng chứng có thể kiểm tra",
+      "minutes": 10,
+      "kind": "challenge",
+      "services": [
+        "CloudWatch",
+        "EC2"
+      ],
+      "prerequisites": [
+        "20-3"
+      ],
+      "quiz": {
+        "question": "Dòng bằng chứng nào trung thực nhất nếu chưa chạy AWS thật?",
+        "options": [
+          "ALB production đã vượt kiểm thử tải",
+          "Chưa chạy AWS; đã kiểm tra local với thời gian và output đính kèm",
+          "Mọi tài nguyên AWS đã dọn vì notebook ghi xong"
+        ],
+        "answer": 1,
+        "explanation": "Hồ sơ phải phân biệt điều đã chạy, điều chỉ thiết kế và điều còn thiếu, kèm phạm vi kiểm tra cụ thể."
+      }
+    },
+    {
+      "id": "20-5",
+      "title": "Capstone: teardown và kiểm kê cuối",
+      "minutes": 18,
+      "kind": "lab",
+      "services": [
+        "EC2 Auto Scaling",
+        "RDS",
+        "S3",
+        "Cost Explorer"
+      ],
+      "prerequisites": [
+        "20-4"
+      ],
+      "quiz": {
+        "question": "Vì sao cần kiểm tra snapshot sau khi xóa RDS?",
+        "options": [
+          "Snapshot luôn tự biến mất cùng DB",
+          "Snapshot chỉ là dòng log không có storage",
+          "Manual/final snapshots có thể vẫn giữ và tiếp tục phát sinh phí"
+        ],
+        "answer": 2,
+        "explanation": "Xóa DB không tự xóa mọi manual/final snapshot; retained backup và bản sao ở Region khác cũng phải được xem xét."
+      }
+    }
+  ]
+}

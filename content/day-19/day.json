@@ -1,0 +1,125 @@
+{
+  "day": 19,
+  "title": "Năm tình huống sự cố có bằng chứng",
+  "summary": "Chẩn đoán SSH, RDS, ALB, release và chi phí theo dấu hiệu từng lớp thay vì sửa đoán.",
+  "track": "extension",
+  "lessons": [
+    {
+      "id": "19-1",
+      "title": "Sự cố 1: SSH timeout sau khi đổi mạng",
+      "minutes": 12,
+      "kind": "challenge",
+      "services": [
+        "EC2",
+        "VPC",
+        "Systems Manager"
+      ],
+      "prerequisites": [
+        "18-5"
+      ],
+      "quiz": {
+        "question": "SSH timeout sau khi đổi Wi-Fi nhưng ALB vẫn chạy. Kiểm tra nào ưu tiên?",
+        "options": [
+          "Đổi mật khẩu PostgreSQL",
+          "So IP nguồn hiện tại với rule SSH /32 và IP đích của EC2",
+          "Xóa target group"
+        ],
+        "answer": 1,
+        "explanation": "Timeout trước SSH authentication thường liên quan đường mạng hoặc IP/rule; hoạt động của ALB không chứng minh đường SSH từ máy cá nhân."
+      }
+    },
+    {
+      "id": "19-2",
+      "title": "Sự cố 2: phân biệt RDS timeout với lỗi TLS",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "RDS",
+        "VPC"
+      ],
+      "prerequisites": [
+        "19-1"
+      ],
+      "quiz": {
+        "question": "psql báo certificate verify failed ngay sau khi kết nối TCP được. Hướng sửa nào đúng?",
+        "options": [
+          "Mở 5432 cho 0.0.0.0/0",
+          "Tắt xác minh chứng chỉ",
+          "Kiểm tra CA, hostname RDS và cấu hình verify-full"
+        ],
+        "answer": 2,
+        "explanation": "TCP đã tới đích; lỗi xác minh TLS cần sửa danh tính/chứng chỉ, không mở rộng mạng hay bỏ xác minh."
+      }
+    },
+    {
+      "id": "19-3",
+      "title": "Sự cố 3: target unhealthy dù app sống",
+      "minutes": 12,
+      "kind": "challenge",
+      "services": [
+        "ALB",
+        "EC2"
+      ],
+      "prerequisites": [
+        "19-2"
+      ],
+      "quiz": {
+        "question": "Target.ResponseCodeMismatch với health path /heath, còn /health trả 200, nên sửa gì?",
+        "options": [
+          "Sửa health path đúng /health và giữ matcher 200",
+          "Cho matcher nhận mọi mã 200–599",
+          "Tăng số EC2 gấp mười"
+        ],
+        "answer": 0,
+        "explanation": "Sai đường dẫn tạo 404; sửa đúng probe thay vì làm mọi lỗi đều được coi là healthy."
+      }
+    },
+    {
+      "id": "19-4",
+      "title": "Sự cố 4: release xanh nhưng nghiệp vụ hỏng",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "EC2",
+        "CodeDeploy"
+      ],
+      "prerequisites": [
+        "19-3"
+      ],
+      "quiz": {
+        "question": "Health và ready đều 200 nhưng POST hợp lệ bị release mới từ chối. Hành động nào có căn cứ?",
+        "options": [
+          "Khẳng định mạng hỏng vì có lỗi HTTP",
+          "Xem diff/release và rollback artifact đã xác minh rồi kiểm tra API nghiệp vụ",
+          "Chỉ reboot RDS"
+        ],
+        "answer": 1,
+        "explanation": "Health không bao phủ logic tạo link; rollback cần bản tốt đã lưu và smoke test nghiệp vụ sau triển khai."
+      }
+    },
+    {
+      "id": "19-5",
+      "title": "Sự cố 5: phí tiếp tục sau khi đóng lab",
+      "minutes": 12,
+      "kind": "challenge",
+      "services": [
+        "Cost Explorer",
+        "EC2",
+        "RDS"
+      ],
+      "prerequisites": [
+        "19-4"
+      ],
+      "quiz": {
+        "question": "EC2 lab đã terminate mà vẫn có phí, phát biểu nào đúng?",
+        "options": [
+          "Mọi phí sau terminate đều là lỗi AWS",
+          "Budget sẽ tự xóa RDS khi vượt ngưỡng",
+          "Cần kiểm tra ALB, storage, snapshots, IPv4 và các Region đã dùng"
+        ],
+        "answer": 2,
+        "explanation": "Compute EC2 chỉ là một hạng mục; tài nguyên độc lập và dữ liệu billing có độ trễ nên phải kiểm kê theo dịch vụ/Region."
+      }
+    }
+  ]
+}

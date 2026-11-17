@@ -1,0 +1,123 @@
+{
+  "day": 10,
+  "title": "HTTPS với domain có quyền kiểm soát",
+  "summary": "Chuẩn bị DNS, ACM cùng Region và listener HTTPS hoặc ghi rõ nhánh HTTP khi chưa có domain.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "10-1",
+      "title": "Domain mình kiểm soát và đường DNS",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "Route 53",
+        "DNS"
+      ],
+      "prerequisites": [
+        "09-5"
+      ],
+      "quiz": {
+        "question": "Có thể xin ACM public certificate cho hostname ALB mặc định không?",
+        "options": [
+          "Có, chỉ cần biết DNS name",
+          "Không, bạn không kiểm soát domain AWS đó",
+          "Có, dùng root sẽ bỏ qua validation"
+        ],
+        "answer": 1,
+        "explanation": "ACM yêu cầu chứng minh quyền kiểm soát tên miền; hostname elb.amazonaws.com thuộc AWS."
+      }
+    },
+    {
+      "id": "10-2",
+      "title": "Xin ACM certificate trong đúng Region",
+      "minutes": 10,
+      "kind": "lab",
+      "services": [
+        "ACM",
+        "ALB"
+      ],
+      "prerequisites": [
+        "10-1"
+      ],
+      "quiz": {
+        "question": "ALB ở ap-southeast-1 cần certificate ACM ở đâu?",
+        "options": [
+          "Luôn us-east-1",
+          "Một Region bất kỳ cũng gắn được",
+          "ap-southeast-1"
+        ],
+        "answer": 2,
+        "explanation": "Certificate gắn ALB phải ở Region của ALB; yêu cầu us-east-1 áp dụng cho CloudFront, không áp dụng chung."
+      }
+    },
+    {
+      "id": "10-3",
+      "title": "DNS validation có bằng chứng",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "ACM",
+        "DNS"
+      ],
+      "prerequisites": [
+        "10-2"
+      ],
+      "quiz": {
+        "question": "CNAME validation ACM có vai trò nào?",
+        "options": [
+          "Chứng minh quyền kiểm soát và hỗ trợ renewal",
+          "Forward HTTP request tới app",
+          "Mở cổng 443 trên EC2"
+        ],
+        "answer": 0,
+        "explanation": "ACM kiểm tra token DNS, còn traffic record và SG đảm nhiệm các vai trò khác."
+      }
+    },
+    {
+      "id": "10-4",
+      "title": "HTTPS listener và redirect đúng đích",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "ALB",
+        "ACM"
+      ],
+      "prerequisites": [
+        "10-3"
+      ],
+      "quiz": {
+        "question": "Nên đổi HTTP 80 thành redirect khi nào?",
+        "options": [
+          "Trước khi certificate được issued",
+          "Sau khi HTTPS 443 đã hoạt động và được kiểm tra",
+          "Khi target group chưa có target"
+        ],
+        "answer": 1,
+        "explanation": "Kiểm tra HTTPS trước giúp tránh chuyển mọi client sang một listener chưa phục vụ được."
+      }
+    },
+    {
+      "id": "10-5",
+      "title": "Kiểm tra TLS và nhánh chưa có domain",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "TLS",
+        "ALB"
+      ],
+      "prerequisites": [
+        "10-4"
+      ],
+      "quiz": {
+        "question": "Lệnh curl có -k thành công chứng minh điều gì?",
+        "options": [
+          "Đã xác minh đầy đủ HTTPS",
+          "Chứng minh certificate thuộc đúng domain",
+          "Chưa chứng minh certificate được tin cậy và khớp hostname"
+        ],
+        "answer": 2,
+        "explanation": "-k bỏ kiểm tra certificate; bài đạt cần client xác minh trust chain và tên mà không dùng tùy chọn đó."
+      }
+    }
+  ]
+}

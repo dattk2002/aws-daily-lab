@@ -1,0 +1,125 @@
+{
+  "day": 18,
+  "title": "Tác vụ Lambda nhỏ và lịch có kiểm soát",
+  "summary": "Chạy hàm tổng hợp dữ liệu mẫu bằng role tối thiểu, tạo lịch rõ múi giờ rồi xác minh logs và tắt lịch.",
+  "track": "extension",
+  "lessons": [
+    {
+      "id": "18-1",
+      "title": "Sự kiện, lần gọi và tác vụ nhỏ",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "Lambda",
+        "EventBridge Scheduler"
+      ],
+      "prerequisites": [
+        "17-5"
+      ],
+      "quiz": {
+        "question": "Scheduler đã giao sự kiện thành công có chứng minh handler không lỗi không?",
+        "options": [
+          "Có, hai việc luôn là một",
+          "Không, cần xem kết quả thực thi Lambda riêng",
+          "Có, nếu schedule dùng múi giờ Việt Nam"
+        ],
+        "answer": 1,
+        "explanation": "Giao yêu cầu invoke thành công và code thực thi thành công là hai giai đoạn khác nhau; log/metric Lambda mới cho biết lỗi handler."
+      }
+    },
+    {
+      "id": "18-2",
+      "title": "Hai role với quyền tối thiểu",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "IAM",
+        "Lambda",
+        "CloudWatch"
+      ],
+      "prerequisites": [
+        "18-1"
+      ],
+      "quiz": {
+        "question": "Role nào cần quyền lambda:InvokeFunction cho đúng function đích?",
+        "options": [
+          "Role mà EventBridge Scheduler assume",
+          "Role Lambda chỉ ghi log",
+          "User database PostgreSQL"
+        ],
+        "answer": 0,
+        "explanation": "Scheduler cần quyền gọi Lambda; function role chỉ cần những API mà code bên trong thực sự sử dụng."
+      }
+    },
+    {
+      "id": "18-3",
+      "title": "Tổng hợp một lô dữ liệu bằng Lambda",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "Lambda",
+        "CloudWatch"
+      ],
+      "prerequisites": [
+        "18-2"
+      ],
+      "quiz": {
+        "question": "Vì sao handler không cộng dồn kết quả vào biến global?",
+        "options": [
+          "Biến global làm JSON dài hơn",
+          "Lambda không hỗ trợ Python list",
+          "Môi trường có thể được tái sử dụng hoặc thay mới nên global không phải kho trạng thái bền vững"
+        ],
+        "answer": 2,
+        "explanation": "Tính độc lập theo từng event tránh phụ thuộc container được giữ nóng và không tạo tác dụng ghi trùng."
+      }
+    },
+    {
+      "id": "18-4",
+      "title": "Lịch rõ múi giờ và payload",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "EventBridge Scheduler",
+        "Lambda"
+      ],
+      "prerequisites": [
+        "18-3"
+      ],
+      "quiz": {
+        "question": "aws:SourceArn trong trust policy Scheduler phải chỉ tới gì ở lab này?",
+        "options": [
+          "ARN từng lần invoke Lambda",
+          "ARN schedule group đã chọn",
+          "Public URL của ứng dụng"
+        ],
+        "answer": 1,
+        "explanation": "Scheduler dùng schedule group ARN cho SourceArn; không giới hạn điều kiện này bằng ARN của một schedule riêng lẻ."
+      }
+    },
+    {
+      "id": "18-5",
+      "title": "Logs, hai lớp retry và tắt lịch",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "Lambda",
+        "CloudWatch",
+        "EventBridge Scheduler"
+      ],
+      "prerequisites": [
+        "18-4"
+      ],
+      "quiz": {
+        "question": "Tắt schedule tác động thế nào đến event đã được Lambda chấp nhận trước đó?",
+        "options": [
+          "Luôn xóa mọi event đã chấp nhận",
+          "Tự xóa log group",
+          "Không bảo đảm hủy event đang chờ hoặc đang thực thi"
+        ],
+        "answer": 2,
+        "explanation": "Disable ngăn những lần phát lịch mới; queue/retry của Lambda và request đang chạy phải được kiểm tra riêng."
+      }
+    }
+  ]
+}

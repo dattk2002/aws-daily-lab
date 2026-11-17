@@ -1,0 +1,120 @@
+{
+  "day": 2,
+  "title": "Tài khoản, quyền, chi phí",
+  "summary": "Chuẩn bị quyền làm việc an toàn, hiểu plan chi phí và xác minh identity trước mọi thao tác AWS.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "02-1",
+      "title": "Root và MFA",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "IAM"
+      ],
+      "prerequisites": [
+        "01-5"
+      ],
+      "quiz": {
+        "question": "Nên dùng root cho việc nào trong lộ trình này?",
+        "options": [
+          "Chạy mọi lệnh CLI hằng ngày",
+          "Tác vụ quản trị chỉ root mới làm được và bảo vệ quyền truy cập root",
+          "Lưu mật khẩu PostgreSQL trong code"
+        ],
+        "answer": 1,
+        "explanation": "Root có đặc quyền cao; chỉ dùng khi tác vụ yêu cầu root, bảo vệ bằng MFA và không tạo access key root."
+      }
+    },
+    {
+      "id": "02-2",
+      "title": "Quyền làm việc và credentials tạm",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "IAM",
+        "STS"
+      ],
+      "prerequisites": [
+        "02-1"
+      ],
+      "quiz": {
+        "question": "Một phiên role với credentials tạm thường có thêm giá trị nào ngoài access key ID và secret access key?",
+        "options": [
+          "Session token",
+          "Mật khẩu PostgreSQL",
+          "Public IPv4 của EC2"
+        ],
+        "answer": 0,
+        "explanation": "Credentials tạm gồm session token và có thời hạn; thiếu token có thể làm xác thực thất bại."
+      }
+    },
+    {
+      "id": "02-3",
+      "title": "Đọc đúng Free plan và Paid plan",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "AWS Billing"
+      ],
+      "prerequisites": [
+        "02-2"
+      ],
+      "quiz": {
+        "question": "Tại sao không mặc định mọi học viên có 12 tháng EC2/RDS miễn phí?",
+        "options": [
+          "Mọi tài khoản đều bị tính một giá cố định",
+          "Điều kiện tùy thời điểm tạo tài khoản, plan và ưu đãi thực tế",
+          "Free Tier chỉ áp dụng cho IAM"
+        ],
+        "answer": 1,
+        "explanation": "AWS thay đổi mô hình cho tài khoản mới từ tháng 7/2025; cần xem plan, credits và điều kiện của tài khoản thật."
+      }
+    },
+    {
+      "id": "02-4",
+      "title": "Budget là cảnh báo, không phải trần chi tiêu",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "AWS Budgets"
+      ],
+      "prerequisites": [
+        "02-3"
+      ],
+      "quiz": {
+        "question": "Một cost budget chỉ cấu hình email sẽ làm gì khi vượt ngưỡng?",
+        "options": [
+          "Chắc chắn tắt toàn bộ EC2 ngay lập tức",
+          "Gửi cảnh báo theo dữ liệu chi phí được cập nhật, có thể trễ",
+          "Chặn mọi hóa đơn vượt số tiền đã đặt"
+        ],
+        "answer": 1,
+        "explanation": "Thông báo Budget không tự dừng tài nguyên và dữ liệu chi phí có độ trễ; chi phí có thể tiếp tục tăng."
+      }
+    },
+    {
+      "id": "02-5",
+      "title": "CLI và kiểm tra identity",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "AWS CLI",
+        "STS"
+      ],
+      "prerequisites": [
+        "02-4"
+      ],
+      "quiz": {
+        "question": "Lệnh nào giúp xác nhận principal đang dùng trước thao tác AWS?",
+        "options": [
+          "aws sts get-caller-identity --profile lab",
+          "npm start",
+          "aws configure set output json"
+        ],
+        "answer": 0,
+        "explanation": "GetCallerIdentity trả Account, Arn và UserId; phải so sánh với tài khoản/role dự định sử dụng."
+      }
+    }
+  ]
+}

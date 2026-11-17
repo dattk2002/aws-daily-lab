@@ -1,0 +1,123 @@
+{
+  "day": 1,
+  "title": "Hiểu hệ thống cần xây",
+  "summary": "Vẽ và giải thích đường đi tạo link, redirect và bộ bằng chứng cho ứng dụng URL shortener.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "01-1",
+      "title": "AWS trong một request",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "AWS",
+        "EC2"
+      ],
+      "prerequisites": [],
+      "quiz": {
+        "question": "Ở đường đi phục vụ HTTP, thành phần nào trực tiếp chạy mã Node.js của demo?",
+        "options": [
+          "Amazon EC2",
+          "IAM policy",
+          "AWS Budget"
+        ],
+        "answer": 0,
+        "explanation": "EC2 là máy chạy tiến trình Node.js; IAM quyết định quyền còn Budget theo dõi chi phí."
+      }
+    },
+    {
+      "id": "01-2",
+      "title": "Client, server và database",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "EC2",
+        "RDS"
+      ],
+      "prerequisites": [
+        "01-1"
+      ],
+      "quiz": {
+        "question": "Khi tạo link thành công, dữ liệu ánh xạ code → URL nên nằm ở đâu để tồn tại sau khi Node.js khởi động lại?",
+        "options": [
+          "Biến trong trình duyệt",
+          "Bảng PostgreSQL",
+          "Chỉ trong log HTTP"
+        ],
+        "answer": 1,
+        "explanation": "PostgreSQL giữ ánh xạ bền vững; bộ nhớ tiến trình mất khi tiến trình kết thúc."
+      }
+    },
+    {
+      "id": "01-3",
+      "title": "Vẽ sơ đồ URL shortener",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "EC2",
+        "RDS",
+        "ALB"
+      ],
+      "prerequisites": [
+        "01-2"
+      ],
+      "quiz": {
+        "question": "GET /r/abc tìm thấy URL thì demo trả phản hồi nào?",
+        "options": [
+          "201 cùng code mới",
+          "302 cùng header Location",
+          "200 chứa toàn bộ website đích"
+        ],
+        "answer": 1,
+        "explanation": "Demo trả 302 để client tự gửi request mới đến URL đích."
+      }
+    },
+    {
+      "id": "01-4",
+      "title": "Region và Availability Zone",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "AWS",
+        "VPC"
+      ],
+      "prerequisites": [
+        "01-3"
+      ],
+      "quiz": {
+        "question": "Một subnet thông thường thuộc phạm vi nào?",
+        "options": [
+          "Một Availability Zone",
+          "Tất cả Region",
+          "Hai Region bất kỳ"
+        ],
+        "answer": 0,
+        "explanation": "Subnet nằm hoàn toàn trong một AZ; VPC có thể chứa subnet ở nhiều AZ trong cùng Region."
+      }
+    },
+    {
+      "id": "01-5",
+      "title": "Chọn kết quả cần chứng minh",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "AWS",
+        "EC2",
+        "RDS"
+      ],
+      "prerequisites": [
+        "01-4"
+      ],
+      "quiz": {
+        "question": "Bằng chứng nào chứng minh dữ liệu link tồn tại sau khi khởi động lại ứng dụng?",
+        "options": [
+          "Ảnh trang EC2 Running",
+          "Tạo link, restart Node.js, GET lại code và nhận đúng Location",
+          "Chỉ GET /health nhận 200"
+        ],
+        "answer": 1,
+        "explanation": "Chuỗi kiểm tra này nối dữ liệu đã ghi trước restart với kết quả đọc sau restart."
+      }
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "day": 14,
+  "title": "Backup và restore có bằng chứng",
+  "summary": "Chọn cơ chế backup phù hợp rồi phục hồi một bản dump đã lưu riêng trên S3 vào database thử nghiệm.",
+  "track": "extension",
+  "lessons": [
+    {
+      "id": "14-1",
+      "title": "Automated backup và mục tiêu phục hồi",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "RDS"
+      ],
+      "prerequisites": [
+        "13-5"
+      ],
+      "quiz": {
+        "question": "RPO mô tả điều gì?",
+        "options": [
+          "Thời gian tối đa để phục hồi",
+          "Mức dữ liệu có thể mất theo thời gian",
+          "Dung lượng tối đa của EC2"
+        ],
+        "answer": 1,
+        "explanation": "RPO đo khoảng mất dữ liệu chấp nhận; RTO là mục tiêu thời gian phục hồi."
+      }
+    },
+    {
+      "id": "14-2",
+      "title": "Snapshot và PITR tạo DB mới",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "RDS"
+      ],
+      "prerequisites": [
+        "14-1"
+      ],
+      "quiz": {
+        "question": "Restore snapshot RDS thực hiện theo cách nào?",
+        "options": [
+          "Ghi đè trực tiếp DB nguồn",
+          "Tạo DB instance mới",
+          "Tự sửa schema ở DB nguồn"
+        ],
+        "answer": 1,
+        "explanation": "RDS restore tạo instance mới; cần kiểm tra cấu hình và đổi endpoint có chủ ý."
+      }
+    },
+    {
+      "id": "14-3",
+      "title": "Logical dump của PostgreSQL",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "RDS",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "14-2"
+      ],
+      "quiz": {
+        "question": "File tạo bằng pg_dump -Fc nên khôi phục bằng gì?",
+        "options": [
+          "pg_restore",
+          "Nginx reload",
+          "S3 website hosting"
+        ],
+        "answer": 0,
+        "explanation": "Custom archive của pg_dump dùng pg_restore, khác với plain SQL dùng psql."
+      }
+    },
+    {
+      "id": "14-4",
+      "title": "Lưu bản dump riêng trên S3",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "S3",
+        "IAM"
+      ],
+      "prerequisites": [
+        "14-3"
+      ],
+      "quiz": {
+        "question": "RDS snapshot export sang S3 có khôi phục trực tiếp thành RDS instance được không?",
+        "options": [
+          "Có, bằng restore snapshot",
+          "Không; đó là dữ liệu phân tích, không phải snapshot restorable",
+          "Có, đổi đuôi file là đủ"
+        ],
+        "answer": 1,
+        "explanation": "Snapshot export phục vụ đọc dữ liệu xuất; không biến thành snapshot RDS để restore."
+      }
+    },
+    {
+      "id": "14-5",
+      "title": "Restore thử và chứng minh dữ liệu",
+      "minutes": 25,
+      "kind": "challenge",
+      "services": [
+        "PostgreSQL",
+        "RDS",
+        "S3"
+      ],
+      "prerequisites": [
+        "14-4"
+      ],
+      "quiz": {
+        "question": "Bằng chứng tốt nhất cho backup trong bài là gì?",
+        "options": [
+          "Upload S3 trả thành công",
+          "File có tên backup",
+          "Restore vào DB riêng và xác minh dữ liệu cùng API"
+        ],
+        "answer": 2,
+        "explanation": "Upload thành công chưa chứng minh bản backup dùng được; cần diễn tập phục hồi."
+      }
+    }
+  ]
+}

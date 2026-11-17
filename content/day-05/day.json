@@ -1,0 +1,124 @@
+{
+  "day": 5,
+  "title": "EC2 với quyền truy cập có giới hạn",
+  "summary": "Tạo và kiểm chứng một EC2 AL2023 có đĩa mã hóa, Node.js 22 và đường quản trị giới hạn.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "05-1",
+      "title": "Chọn AMI, kiến trúc và instance có chủ đích",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "EC2",
+        "AL2023"
+      ],
+      "prerequisites": [
+        "04-5"
+      ],
+      "quiz": {
+        "question": "Cặp cấu hình nào phải bị loại vì kiến trúc không tương thích?",
+        "options": [
+          "AMI AL2023 arm64 và instance chỉ hỗ trợ x86_64",
+          "AMI AL2023 x86_64 và instance hỗ trợ x86_64",
+          "AMI AL2023 arm64 và instance hỗ trợ arm64"
+        ],
+        "answer": 0,
+        "explanation": "AMI phải tương thích kiến trúc CPU của instance; tên micro không quyết định điều đó."
+      }
+    },
+    {
+      "id": "05-2",
+      "title": "Tạo EC2 với EBS mã hóa",
+      "minutes": 30,
+      "kind": "lab",
+      "services": [
+        "EC2",
+        "EBS",
+        "KMS"
+      ],
+      "prerequisites": [
+        "05-1"
+      ],
+      "quiz": {
+        "question": "Cấu hình nào phù hợp root volume của máy lab?",
+        "options": [
+          "EBS mã hóa và kiểm tra Delete on termination theo nhu cầu",
+          "EBS không mã hóa vì đã hạn chế SSH",
+          "Mở SSH toàn Internet để bật EBS encryption"
+        ],
+        "answer": 0,
+        "explanation": "Mã hóa lưu trữ độc lập với rule SSH; vòng đời volume cần được chọn rõ để tránh giữ đĩa ngoài ý muốn."
+      }
+    },
+    {
+      "id": "05-3",
+      "title": "Vào máy bằng SSH hoặc Session Manager",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "EC2",
+        "Systems Manager"
+      ],
+      "prerequisites": [
+        "05-2"
+      ],
+      "quiz": {
+        "question": "Session Manager cần điều kiện nào để mở phiên tới EC2?",
+        "options": [
+          "Chỉ cần inbound TCP 22 từ mọi nơi",
+          "SSM Agent, IAM phù hợp và đường mạng tới endpoint SSM",
+          "Chỉ cần có một key pair trên laptop"
+        ],
+        "answer": 1,
+        "explanation": "SSM sử dụng agent, quyền IAM và kết nối outbound tới dịch vụ; nó không thay thế điều kiện này bằng rule SSH."
+      }
+    },
+    {
+      "id": "05-4",
+      "title": "Cập nhật AL2023 và cài Node.js 22",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "AL2023",
+        "Node.js"
+      ],
+      "prerequisites": [
+        "05-3"
+      ],
+      "quiz": {
+        "question": "Trên AL2023, lệnh nào gọi rõ runtime major 22 thay vì tên mặc định qua alternatives?",
+        "options": [
+          "node-22 --version",
+          "apt install nodejs",
+          "amazon-linux-extras enable nodejs22"
+        ],
+        "answer": 0,
+        "explanation": "AL2023 có executable được namespaced theo major như node-22; tên node mặc định có thể đổi theo alternatives."
+      }
+    },
+    {
+      "id": "05-5",
+      "title": "Chứng minh ingress đã được giới hạn",
+      "minutes": 10,
+      "kind": "challenge",
+      "services": [
+        "EC2",
+        "VPC"
+      ],
+      "prerequisites": [
+        "05-4"
+      ],
+      "quiz": {
+        "question": "Một SG cho SSH từ IP /32 nhưng SG khác gắn cùng máy cho SSH từ mọi nơi thì ai có thể tới port 22?",
+        "options": [
+          "Chỉ IP /32 vì rule hẹp thắng",
+          "Mọi nguồn được rule rộng cho phép",
+          "Không ai vì hai SG xung đột"
+        ],
+        "answer": 1,
+        "explanation": "Các rule cho phép từ mọi SG gắn vào máy được tổng hợp; rule hẹp không phủ định rule rộng."
+      }
+    }
+  ]
+}

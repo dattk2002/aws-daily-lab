@@ -1,0 +1,123 @@
+{
+  "day": 6,
+  "title": "RDS PostgreSQL private và TLS",
+  "summary": "Chuẩn bị PostgreSQL private chỉ nhận từ EC2, xác minh TLS và tạo schema của ứng dụng.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "06-1",
+      "title": "Chuẩn bị DB subnet group qua hai AZ",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "RDS",
+        "VPC"
+      ],
+      "prerequisites": [
+        "05-5"
+      ],
+      "quiz": {
+        "question": "Với RDS DB instance thông thường trong lab, subnet group nên có gì?",
+        "options": [
+          "Hai private subnet ở hai AZ trong cùng VPC",
+          "Hai subnet cùng AZ để giảm độ trễ",
+          "Một public subnet và inbound 5432 từ Internet"
+        ],
+        "answer": 0,
+        "explanation": "Subnet group cần subnet qua ít nhất hai AZ trong cùng Region; điều đó không tự bật triển khai Multi-AZ."
+      }
+    },
+    {
+      "id": "06-2",
+      "title": "Tạo PostgreSQL private có cấu hình rõ",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "RDS",
+        "KMS"
+      ],
+      "prerequisites": [
+        "06-1"
+      ],
+      "quiz": {
+        "question": "Cấu hình nào đúng với RDS của bài lab?",
+        "options": [
+          "Public access No, initial database lab và storage mã hóa",
+          "Public access Yes vì EC2 ở public subnet",
+          "Đặt identifier lab thì database lab luôn tự tồn tại"
+        ],
+        "answer": 0,
+        "explanation": "EC2 trong cùng VPC kết nối database private; identifier tài nguyên và tên database ban đầu là hai trường riêng."
+      }
+    },
+    {
+      "id": "06-3",
+      "title": "Chỉ cho Security Group của EC2 vào database",
+      "minutes": 10,
+      "kind": "lab",
+      "services": [
+        "RDS",
+        "VPC"
+      ],
+      "prerequisites": [
+        "06-2"
+      ],
+      "quiz": {
+        "question": "Nguồn inbound 5432 phù hợp cho SG RDS trong lab là gì?",
+        "options": [
+          "0.0.0.0/0",
+          "Public IP của laptop người học",
+          "ID Security Group gắn với EC2 ứng dụng"
+        ],
+        "answer": 2,
+        "explanation": "SG reference giới hạn nguồn tới các interface app phù hợp trong VPC, không cần mở database ra Internet."
+      }
+    },
+    {
+      "id": "06-4",
+      "title": "Kết nối PostgreSQL bằng TLS xác minh đầy đủ",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "RDS",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "06-3"
+      ],
+      "quiz": {
+        "question": "Cấu hình psql nào kiểm tra CA và hostname của RDS?",
+        "options": [
+          "sslmode=prefer và dùng IP bất kỳ",
+          "sslmode=verify-full, CA đúng và endpoint DNS RDS",
+          "sslmode=disable vì EBS đã mã hóa"
+        ],
+        "answer": 1,
+        "explanation": "verify-full cần CA tin cậy và hostname khớp chứng chỉ; mã hóa lưu trữ không thay thế TLS trên kết nối."
+      }
+    },
+    {
+      "id": "06-5",
+      "title": "Tạo user ứng dụng và schema links",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "RDS",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "06-4"
+      ],
+      "quiz": {
+        "question": "Ai nên sở hữu bảng links mới trong lab này?",
+        "options": [
+          "Role app labapp được cấp quyền phù hợp",
+          "Root user của tài khoản AWS",
+          "Master labadmin để app luôn có quyền quản trị"
+        ],
+        "answer": 0,
+        "explanation": "Tạo bảng bằng role app giữ quyền sở hữu nhất quán; không dùng master credentials làm tài khoản runtime."
+      }
+    }
+  ]
+}

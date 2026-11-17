@@ -1,0 +1,128 @@
+{
+  "day": 16,
+  "title": "CD qua OIDC và SSM có phạm vi",
+  "summary": "Chuẩn bị EC2, roles, artifact và secrets runtime để triển khai một SHA đã kiểm tra rồi diễn tập rollback.",
+  "track": "extension",
+  "lessons": [
+    {
+      "id": "16-1",
+      "title": "OIDC với repo, branch và audience chính xác",
+      "minutes": 20,
+      "kind": "concept",
+      "services": [
+        "IAM",
+        "GitHub Actions",
+        "STS"
+      ],
+      "prerequisites": [
+        "15-5"
+      ],
+      "quiz": {
+        "question": "Trust policy OIDC của lab nên kiểm tra gì?",
+        "options": [
+          "Chỉ tên tổ chức",
+          "aud và sub chính xác cho repo cùng branch main",
+          "Cho mọi subject bằng dấu *"
+        ],
+        "answer": 1,
+        "explanation": "Audience và subject chính xác giới hạn token được assume role; quyền API vẫn nằm ở permission policy."
+      }
+    },
+    {
+      "id": "16-2",
+      "title": "Chuẩn bị EC2 và bộ cài release qua SSM",
+      "minutes": 30,
+      "kind": "lab",
+      "services": [
+        "SSM",
+        "EC2",
+        "S3"
+      ],
+      "prerequisites": [
+        "16-1"
+      ],
+      "quiz": {
+        "question": "EC2 private muốn nhận Run Command cần gì?",
+        "options": [
+          "Mở inbound SSH toàn Internet",
+          "Agent, instance role và outbound tới endpoint SSM phù hợp",
+          "Chỉ gắn tag là đủ"
+        ],
+        "answer": 1,
+        "explanation": "Agent phải online với danh tính và đường mạng hợp lệ; tag không tự tạo kết nối."
+      }
+    },
+    {
+      "id": "16-3",
+      "title": "Secrets runtime và SSM document có giới hạn",
+      "minutes": 25,
+      "kind": "lab",
+      "services": [
+        "SSM",
+        "KMS",
+        "IAM"
+      ],
+      "prerequisites": [
+        "16-2"
+      ],
+      "quiz": {
+        "question": "Secret database nên đi vào release bằng đường nào?",
+        "options": [
+          "Đóng gói vào tar.gz",
+          "In vào log GitHub Actions",
+          "EC2 lấy SecureString bằng instance role lúc deploy"
+        ],
+        "answer": 2,
+        "explanation": "Runner không cần biết mật khẩu DB; instance lấy đúng parameter và giữ file runtime private."
+      }
+    },
+    {
+      "id": "16-4",
+      "title": "Deploy thủ công có kiểm tra và smoke test",
+      "minutes": 30,
+      "kind": "lab",
+      "services": [
+        "GitHub Actions",
+        "SSM",
+        "S3"
+      ],
+      "prerequisites": [
+        "16-3"
+      ],
+      "quiz": {
+        "question": "SendCommand trả CommandId đã chứng minh điều gì?",
+        "options": [
+          "Command đã được chấp nhận, còn phải chờ kết quả thực thi",
+          "Ứng dụng chắc chắn khỏe",
+          "DB đã rollback"
+        ],
+        "answer": 0,
+        "explanation": "API nhận command không bảo đảm agent đã chạy xong hoặc app đã phục vụ đúng."
+      }
+    },
+    {
+      "id": "16-5",
+      "title": "Rollback đúng release và giới hạn dữ liệu",
+      "minutes": 20,
+      "kind": "challenge",
+      "services": [
+        "SSM",
+        "EC2",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "16-4"
+      ],
+      "quiz": {
+        "question": "Rollback code có tự khôi phục dữ liệu đã bị migration xóa không?",
+        "options": [
+          "Có, PM2 luôn có backup",
+          "Không, cần chiến lược schema và dữ liệu riêng",
+          "Có nếu dùng OIDC"
+        ],
+        "answer": 1,
+        "explanation": "Đổi release chỉ đổi code; schema/data cần migration tương thích hoặc quy trình restore riêng."
+      }
+    }
+  ]
+}

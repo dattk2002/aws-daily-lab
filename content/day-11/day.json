@@ -1,0 +1,125 @@
+{
+  "day": 11,
+  "title": "Quan sát để tìm đúng lớp lỗi",
+  "summary": "Thu metrics và log JSON, cấu hình CloudWatch agent cùng alarm rồi lần theo một lỗi upstream.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "11-1",
+      "title": "Chọn metrics trả lời câu hỏi",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "CloudWatch",
+        "ALB",
+        "EC2"
+      ],
+      "prerequisites": [
+        "10-5"
+      ],
+      "quiz": {
+        "question": "Metric nào phân biệt 5xx do ALB phát sinh với 5xx do target trả?",
+        "options": [
+          "Chỉ CPUUtilization",
+          "Chỉ dung lượng EBS",
+          "HTTPCode_ELB_5XX_Count và HTTPCode_Target_5XX_Count"
+        ],
+        "answer": 2,
+        "explanation": "Hai metric thuộc AWS/ApplicationELB đếm lỗi từ hai lớp khác nhau, giúp khoanh vùng trước khi đọc logs."
+      }
+    },
+    {
+      "id": "11-2",
+      "title": "Log có cấu trúc tại Nginx",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "Nginx",
+        "CloudWatch Logs"
+      ],
+      "prerequisites": [
+        "11-1"
+      ],
+      "quiz": {
+        "question": "Trường nào nên tránh ghi nguyên văn vào access log?",
+        "options": [
+          "Authorization header và connection string DB",
+          "HTTP status",
+          "Request duration"
+        ],
+        "answer": 0,
+        "explanation": "Thông tin xác thực không nên vào logs; status và duration cần cho chẩn đoán khi không kèm secrets."
+      }
+    },
+    {
+      "id": "11-3",
+      "title": "CloudWatch agent thu log và memory",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "CloudWatch Agent",
+        "IAM"
+      ],
+      "prerequisites": [
+        "11-2"
+      ],
+      "quiz": {
+        "question": "Agent trên EC2 nên lấy quyền gửi logs bằng cách nào?",
+        "options": [
+          "AWS access key hardcode trong app",
+          "Instance role với quyền cần thiết",
+          "Chạy Node bằng root để có quyền AWS"
+        ],
+        "answer": 1,
+        "explanation": "Instance role cấp credentials tạm cho agent; quyền hệ điều hành và IAM là hai ranh giới riêng."
+      }
+    },
+    {
+      "id": "11-4",
+      "title": "Alarm có ngưỡng và cách phản ứng",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "CloudWatch Alarms",
+        "ALB"
+      ],
+      "prerequisites": [
+        "11-3"
+      ],
+      "quiz": {
+        "question": "Alarm báo INSUFFICIENT_DATA cần hiểu thế nào?",
+        "options": [
+          "Chắc chắn hệ thống bình thường",
+          "Chắc chắn EC2 đã bị xóa",
+          "Chưa đủ datapoints để đánh giá theo cấu hình"
+        ],
+        "answer": 2,
+        "explanation": "Thiếu dữ liệu khác giá trị zero và khác ALARM; cần kiểm tra dimensions, period và nguồn metric."
+      }
+    },
+    {
+      "id": "11-5",
+      "title": "Lần theo một lỗi 502",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "CloudWatch Logs",
+        "Nginx",
+        "PM2"
+      ],
+      "prerequisites": [
+        "11-4"
+      ],
+      "quiz": {
+        "question": "Nginx báo connect() failed tới 127.0.0.1:3000 nên kiểm tra gì trước?",
+        "options": [
+          "Process Node có lắng nghe đúng port không",
+          "Mua domain khác ngay",
+          "Mở RDS ra Internet"
+        ],
+        "answer": 0,
+        "explanation": "Lỗi nối upstream loopback chỉ vào process/port/bind trên máy; thay DNS hoặc public DB không sửa chặng đó."
+      }
+    }
+  ]
+}

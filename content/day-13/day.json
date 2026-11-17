@@ -1,0 +1,122 @@
+{
+  "day": 13,
+  "title": "S3 và SDK: lưu dữ liệu riêng tư",
+  "summary": "Tạo kho S3 riêng tư, upload bằng instance role và giới hạn vòng đời dữ liệu thử nghiệm.",
+  "track": "extension",
+  "lessons": [
+    {
+      "id": "13-1",
+      "title": "Bucket riêng tư cho tài sản của lab",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "S3"
+      ],
+      "prerequisites": [
+        "12-5"
+      ],
+      "quiz": {
+        "question": "Một bucket dùng cho backup nên bật thiết lập nào?",
+        "options": [
+          "Tắt mọi lớp chặn public",
+          "Bật cả bốn Block Public Access",
+          "Cấp public-read cho object"
+        ],
+        "answer": 1,
+        "explanation": "Block Public Access tạo hàng rào chống cấp quyền công khai; ứng dụng vẫn truy cập qua IAM được phép."
+      }
+    },
+    {
+      "id": "13-2",
+      "title": "Object key là địa chỉ dữ liệu",
+      "minutes": 10,
+      "kind": "lab",
+      "services": [
+        "S3"
+      ],
+      "prerequisites": [
+        "13-1"
+      ],
+      "quiz": {
+        "question": "Hai key logs/A.json và logs/a.json có quan hệ gì?",
+        "options": [
+          "Là hai object khác nhau",
+          "Luôn ghi đè nhau",
+          "Là hai bucket"
+        ],
+        "answer": 0,
+        "explanation": "S3 phân biệt hoa thường trong toàn bộ key, bao gồm prefix."
+      }
+    },
+    {
+      "id": "13-3",
+      "title": "Instance role thay cho access key",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "IAM",
+        "EC2",
+        "S3"
+      ],
+      "prerequisites": [
+        "13-2"
+      ],
+      "quiz": {
+        "question": "SDK trên EC2 nên lấy credentials của ứng dụng bằng cách nào?",
+        "options": [
+          "Ghi access key trong source",
+          "Dùng tài khoản root",
+          "Default provider chain với instance role"
+        ],
+        "answer": 2,
+        "explanation": "Instance profile cấp credentials tạm; không cần chép access key dài hạn vào máy."
+      }
+    },
+    {
+      "id": "13-4",
+      "title": "Upload bằng AWS SDK JavaScript v3",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "S3",
+        "AWS SDK"
+      ],
+      "prerequisites": [
+        "13-3"
+      ],
+      "quiz": {
+        "question": "Với SDK trên EC2 đã gắn role, constructor nên chứa gì?",
+        "options": [
+          "Region và không hardcode credentials",
+          "Root access key",
+          "Mật khẩu PostgreSQL"
+        ],
+        "answer": 0,
+        "explanation": "SDK tự tìm credentials qua provider chain; Region xác định nơi gọi API."
+      }
+    },
+    {
+      "id": "13-5",
+      "title": "Lifecycle có phạm vi và thử quyền âm",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "S3",
+        "IAM"
+      ],
+      "prerequisites": [
+        "13-4"
+      ],
+      "quiz": {
+        "question": "Lifecycle cho prefix scratch/ có nên tự xóa backups/ không?",
+        "options": [
+          "Có, mọi prefix là cùng thư mục",
+          "Không, rule phải khớp prefix",
+          "Có nếu object nhỏ"
+        ],
+        "answer": 1,
+        "explanation": "Filter prefix giới hạn tập object bị tác động; kiểm tra phạm vi trước khi bật rule."
+      }
+    }
+  ]
+}

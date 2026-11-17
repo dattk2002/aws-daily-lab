@@ -1,0 +1,125 @@
+{
+  "day": 17,
+  "title": "Mở rộng capacity mà không giữ trạng thái trên EC2",
+  "summary": "Tạo một nhóm EC2 có thể thay thế sau ALB, chọn tín hiệu scale và thu hồi capacity có kiểm chứng.",
+  "track": "extension",
+  "lessons": [
+    {
+      "id": "17-1",
+      "title": "Stateless: thay máy mà link vẫn sống",
+      "minutes": 12,
+      "kind": "concept",
+      "services": [
+        "EC2",
+        "RDS",
+        "ALB"
+      ],
+      "prerequisites": [
+        "16-5"
+      ],
+      "quiz": {
+        "question": "Một link đã tạo biến mất sau khi ASG thay EC2. Thiết kế nào cần sửa trước?",
+        "options": [
+          "Tăng timeout ALB",
+          "Chuyển bản ghi link từ bộ nhớ EC2 vào RDS dùng chung",
+          "Bật sticky session để máy cũ không bị xóa"
+        ],
+        "answer": 1,
+        "explanation": "RDS giữ trạng thái bền vững; EC2 thay thế được không được giữ bản ghi duy nhất trong RAM hoặc đĩa cục bộ."
+      }
+    },
+    {
+      "id": "17-2",
+      "title": "Launch template và bootstrap có thể lặp lại",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "EC2",
+        "IAM",
+        "Systems Manager"
+      ],
+      "prerequisites": [
+        "17-1"
+      ],
+      "quiz": {
+        "question": "Thông tin nào không được đưa vào user data hoặc AMI?",
+        "options": [
+          "ID security group ứng dụng",
+          "Đường dẫn bộ CA RDS",
+          "Mật khẩu DATABASE_URL"
+        ],
+        "answer": 2,
+        "explanation": "User data và AMI có thể được người có quyền hạ tầng đọc. Secret được lấy khi boot bằng instance role và không ghi vào ảnh máy."
+      }
+    },
+    {
+      "id": "17-3",
+      "title": "Tạo Auto Scaling Group sau ALB",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "EC2 Auto Scaling",
+        "ALB"
+      ],
+      "prerequisites": [
+        "17-2"
+      ],
+      "quiz": {
+        "question": "Khi chỉ terminate thủ công một máy của ASG có desired=1, điều gì thường xảy ra?",
+        "options": [
+          "ASG tạo máy khác để trở về desired=1",
+          "ASG tự đổi desired về 0",
+          "Target group bị xóa theo máy"
+        ],
+        "answer": 0,
+        "explanation": "Desired capacity là trạng thái ASG cố duy trì; xóa EC2 riêng lẻ không dừng nhóm."
+      }
+    },
+    {
+      "id": "17-4",
+      "title": "Scaling policy và tín hiệu phù hợp",
+      "minutes": 12,
+      "kind": "lab",
+      "services": [
+        "EC2 Auto Scaling",
+        "CloudWatch"
+      ],
+      "prerequisites": [
+        "17-3"
+      ],
+      "quiz": {
+        "question": "Metric nào phù hợp hơn với target tracking khi tổng lượt gọi tăng theo tải web?",
+        "options": [
+          "Tổng số bản ghi links từ đầu dự án",
+          "ALBRequestCountPerTarget",
+          "Dung lượng AMI"
+        ],
+        "answer": 1,
+        "explanation": "Request count trên mỗi target phản ánh phần tải chia cho capacity; một bộ đếm tích lũy không giảm khi thêm máy không phù hợp."
+      }
+    },
+    {
+      "id": "17-5",
+      "title": "Quan sát thay máy và thu hồi capacity",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "EC2 Auto Scaling",
+        "EC2"
+      ],
+      "prerequisites": [
+        "17-4"
+      ],
+      "quiz": {
+        "question": "Muốn giữ ASG để học sau nhưng tắt capacity hiện tại, cấu hình nào đúng?",
+        "options": [
+          "Terminate EC2 nhưng giữ min=1",
+          "Đổi max=0 trước khi đổi desired=2",
+          "Đặt min=0, desired=0 và max=0 rồi xác minh instance đã kết thúc"
+        ],
+        "answer": 2,
+        "explanation": "Phải đưa các giới hạn và desired về 0; terminate riêng lẻ có thể khiến nhóm tạo lại máy."
+      }
+    }
+  ]
+}

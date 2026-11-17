@@ -1,0 +1,121 @@
+{
+  "day": 15,
+  "title": "CI kiểm tra ứng dụng cùng PostgreSQL",
+  "summary": "Chạy kiểm tra source và hợp đồng API với database tạm trước khi đóng gói bản phát hành không chứa secrets.",
+  "track": "extension",
+  "lessons": [
+    {
+      "id": "15-1",
+      "title": "Workflow là bằng chứng có thể lặp lại",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "GitHub Actions"
+      ],
+      "prerequisites": [
+        "14-5"
+      ],
+      "quiz": {
+        "question": "CI của pull request nên cần quyền gì trong bài?",
+        "options": [
+          "AdministratorAccess trên AWS",
+          "contents: read và không cần AWS credentials",
+          "Quyền push vào main"
+        ],
+        "answer": 1,
+        "explanation": "Kiểm tra source và database tạm không cần AWS hoặc quyền ghi repository."
+      }
+    },
+    {
+      "id": "15-2",
+      "title": "PostgreSQL service trong CI",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "GitHub Actions",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "15-1"
+      ],
+      "quiz": {
+        "question": "Job chạy trực tiếp trên runner với port 5432 đã publish dùng host nào?",
+        "options": [
+          "postgres trong mọi trường hợp",
+          "127.0.0.1",
+          "Endpoint RDS production"
+        ],
+        "answer": 1,
+        "explanation": "Với runner job và port mapping, kết nối localhost; job container dùng service label."
+      }
+    },
+    {
+      "id": "15-3",
+      "title": "Test hợp đồng API bằng native Node",
+      "minutes": 25,
+      "kind": "lab",
+      "services": [
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "prerequisites": [
+        "15-2"
+      ],
+      "quiz": {
+        "question": "Test redirect nên cấu hình fetch như thế nào?",
+        "options": [
+          "Luôn follow tới website đích",
+          "redirect: manual để kiểm tra 302 và Location",
+          "Không kiểm tra status"
+        ],
+        "answer": 1,
+        "explanation": "Manual giữ response redirect của app để assertion đo đúng hành vi API."
+      }
+    },
+    {
+      "id": "15-4",
+      "title": "Kiểm tra source và đóng gói artifact",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "GitHub Actions"
+      ],
+      "prerequisites": [
+        "15-3"
+      ],
+      "quiz": {
+        "question": "Artifact deploy Node nên loại gì?",
+        "options": [
+          "package-lock.json",
+          "Mã nguồn runtime",
+          "File .env và credentials"
+        ],
+        "answer": 2,
+        "explanation": "Secrets runtime được cấp riêng; không đưa chúng vào archive hoặc artifact công khai."
+      }
+    },
+    {
+      "id": "15-5",
+      "title": "Đọc CI đỏ và tạo bằng chứng sửa lỗi",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "GitHub Actions",
+        "Node.js"
+      ],
+      "prerequisites": [
+        "15-4"
+      ],
+      "quiz": {
+        "question": "Khi test hỏng, cách xử lý nào có ý nghĩa?",
+        "options": [
+          "Thêm continue-on-error cho mọi test",
+          "Sửa nguyên nhân rồi chạy lại cùng kiểm tra",
+          "Xóa assertion thất bại"
+        ],
+        "answer": 1,
+        "explanation": "Một lần chạy lại cùng hợp đồng giúp chứng minh lỗi đã được xử lý, không chỉ che trạng thái đỏ."
+      }
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "day": 4,
+  "title": "Mạng AWS",
+  "summary": "Lập bản thiết kế CIDR, subnet, route và Security Group để lần theo request trước khi tạo tài nguyên.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "04-1",
+      "title": "VPC và CIDR",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "VPC"
+      ],
+      "prerequisites": [
+        "03-5"
+      ],
+      "quiz": {
+        "question": "Với thiết kế VPC 10.42.0.0/16, subnet nào nằm ngoài phạm vi VPC?",
+        "options": [
+          "10.42.1.0/24",
+          "10.42.20.0/24",
+          "10.43.1.0/24"
+        ],
+        "answer": 2,
+        "explanation": "Prefix /16 cố định hai octet 10.42; mạng 10.43.1.0/24 nằm ngoài VPC này."
+      }
+    },
+    {
+      "id": "04-2",
+      "title": "Subnet và ranh giới AZ",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "VPC",
+        "RDS"
+      ],
+      "prerequisites": [
+        "04-1"
+      ],
+      "quiz": {
+        "question": "Thiết kế nào chuẩn bị được hai public subnet cho ALB nhiều AZ?",
+        "options": [
+          "Hai subnet khác CIDR ở hai AZ khác nhau",
+          "Hai subnet trùng CIDR ở một AZ",
+          "Một subnet kéo dài qua hai AZ"
+        ],
+        "answer": 0,
+        "explanation": "Subnet không kéo dài qua AZ; hai subnet phải có CIDR không chồng lấn và đặt ở hai AZ khác nhau."
+      }
+    },
+    {
+      "id": "04-3",
+      "title": "Route table và Internet Gateway",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "VPC",
+        "Internet Gateway"
+      ],
+      "prerequisites": [
+        "04-2"
+      ],
+      "quiz": {
+        "question": "Một EC2 IPv4 có route ra IGW và SG phù hợp nhưng không có public IPv4 thì có trực tiếp nhận kết nối Internet qua IGW được không?",
+        "options": [
+          "Có, route tự cấp public IP",
+          "Không, còn cần địa chỉ public IPv4 thích hợp",
+          "Có, tên subnet public là đủ"
+        ],
+        "answer": 1,
+        "explanation": "Route IGW không tự cấp địa chỉ public; IPv4 direct Internet cần public IPv4 cùng các điều kiện mạng khác."
+      }
+    },
+    {
+      "id": "04-4",
+      "title": "Security Group theo nguồn cần thiết",
+      "minutes": 15,
+      "kind": "concept",
+      "services": [
+        "VPC",
+        "EC2",
+        "RDS"
+      ],
+      "prerequisites": [
+        "04-3"
+      ],
+      "quiz": {
+        "question": "Inbound PostgreSQL của RDS private nên nhận nguồn nào trong lab?",
+        "options": [
+          "0.0.0.0/0 trên 5432",
+          "Security Group của app EC2 trên 5432",
+          "Mọi địa chỉ IPv6 trên mọi port"
+        ],
+        "answer": 1,
+        "explanation": "Tham chiếu SG app giới hạn kết nối mới đến DB từ tài nguyên app phù hợp, không mở PostgreSQL ra Internet."
+      }
+    },
+    {
+      "id": "04-5",
+      "title": "Lần theo đường đi request",
+      "minutes": 20,
+      "kind": "challenge",
+      "services": [
+        "VPC",
+        "ALB",
+        "EC2",
+        "RDS"
+      ],
+      "prerequisites": [
+        "04-4"
+      ],
+      "quiz": {
+        "question": "ALB trả 502 hoặc 503 thì có đủ căn cứ kết luận RDS hỏng không?",
+        "options": [
+          "Có, mọi lỗi 5xx đều do DB",
+          "Không, phải kiểm tra target, app và DB theo từng chặng",
+          "Có, bỏ qua log app là được"
+        ],
+        "answer": 1,
+        "explanation": "Status ở cửa vào chưa xác định nguyên nhân; cần dùng health, readiness và kiểm tra từng kết nối để khoanh vùng."
+      }
+    }
+  ]
+}

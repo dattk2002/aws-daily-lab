@@ -1,0 +1,122 @@
+{
+  "day": 8,
+  "title": "Nginx và chẩn đoán reverse proxy",
+  "summary": "Đưa request qua Nginx, kiểm chứng headers/logs và phục hồi một lỗi 502 có kiểm soát.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "08-1",
+      "title": "Reverse proxy đứng ở đâu trong request",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "Nginx",
+        "Node.js"
+      ],
+      "prerequisites": [
+        "07-5"
+      ],
+      "quiz": {
+        "question": "Đường request đúng của lab trước ALB là gì?",
+        "options": [
+          "Client → Nginx:80 → Node loopback:3000 → RDS private:5432",
+          "Client → RDS public → Nginx → Node",
+          "Client → Node root:80 → RDS localhost"
+        ],
+        "answer": 0,
+        "explanation": "Nginx là đầu vào HTTP, Node chỉ nghe loopback và database được truy cập riêng qua VPC/TLS."
+      }
+    },
+    {
+      "id": "08-2",
+      "title": "Cấu hình Nginx tới upstream loopback",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "Nginx",
+        "EC2"
+      ],
+      "prerequisites": [
+        "08-1"
+      ],
+      "quiz": {
+        "question": "Nên làm gì trước khi reload cấu hình Nginx mới?",
+        "options": [
+          "Mở 3000 từ mọi nơi",
+          "Chạy nginx -t và xử lý lỗi cấu hình",
+          "Xóa toàn bộ nginx.conf"
+        ],
+        "answer": 1,
+        "explanation": "Syntax check phát hiện nhiều lỗi trước reload; vẫn cần request thật để xác minh server selection và upstream."
+      }
+    },
+    {
+      "id": "08-3",
+      "title": "Headers và timeout phải phản ánh đúng tuyến mạng",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "Nginx"
+      ],
+      "prerequisites": [
+        "08-2"
+      ],
+      "quiz": {
+        "question": "proxy_read_timeout chủ yếu giới hạn điều gì?",
+        "options": [
+          "Khoảng im lặng giữa các lần đọc response upstream",
+          "Tổng thời gian mọi request trong ngày",
+          "Thời gian RDS giữ backup"
+        ],
+        "answer": 0,
+        "explanation": "Read timeout của proxy đo khoảng thời gian giữa các thao tác đọc, không phải deadline tổng cho toàn request."
+      }
+    },
+    {
+      "id": "08-4",
+      "title": "Đọc access log và error log theo một request",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "Nginx",
+        "PM2"
+      ],
+      "prerequisites": [
+        "08-3"
+      ],
+      "quiz": {
+        "question": "Nhận định nào đúng khi route mã thiếu trả 404 từ app?",
+        "options": [
+          "Luôn phải có error log Nginx",
+          "Access log có thể ghi 404 dù không có error log tương ứng",
+          "404 chứng minh RDS đã bị public"
+        ],
+        "answer": 1,
+        "explanation": "404 có thể là response ứng dụng có chủ đích; error log phục vụ các lỗi xử lý/kết nối, không nhất thiết ghi mọi status 4xx."
+      }
+    },
+    {
+      "id": "08-5",
+      "title": "Tạo một lỗi 502 có kiểm soát rồi phục hồi",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "Nginx",
+        "PM2"
+      ],
+      "prerequisites": [
+        "08-4"
+      ],
+      "quiz": {
+        "question": "Nginx 502 và curl trực tiếp loopback 3000 báo connection refused: bước hợp lý tiếp theo là gì?",
+        "options": [
+          "Mở PostgreSQL ra Internet",
+          "Kiểm tra và phục hồi process Node đúng user PM2",
+          "Tắt xác minh TLS cho mọi kết nối"
+        ],
+        "answer": 1,
+        "explanation": "Bằng chứng cho thấy upstream HTTP chưa lắng nghe; sửa process và kiểm tra lại health/ready thay vì đổi mạng DB hoặc TLS."
+      }
+    }
+  ]
+}

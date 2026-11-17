@@ -1,0 +1,123 @@
+{
+  "day": 9,
+  "title": "ALB và đường vào có kiểm soát",
+  "summary": "Đưa app qua ALB hai AZ, kiểm tra readiness và giới hạn Nginx chỉ nhận từ ALB.",
+  "track": "core",
+  "lessons": [
+    {
+      "id": "09-1",
+      "title": "Hai AZ cho cửa vào ALB",
+      "minutes": 10,
+      "kind": "concept",
+      "services": [
+        "ALB",
+        "VPC"
+      ],
+      "prerequisites": [
+        "08-5"
+      ],
+      "quiz": {
+        "question": "Vì sao chọn hai subnet khác AZ cho ALB?",
+        "options": [
+          "Để ALB có điểm hiện diện ở hai AZ",
+          "Để một EC2 tự nhân đôi",
+          "Để RDS trở thành public"
+        ],
+        "answer": 0,
+        "explanation": "Hai subnet ở hai AZ đáp ứng bố trí ALB; số lượng và vị trí EC2 vẫn do bạn quản lý."
+      }
+    },
+    {
+      "id": "09-2",
+      "title": "Target group đi qua Nginx",
+      "minutes": 15,
+      "kind": "lab",
+      "services": [
+        "ALB",
+        "EC2"
+      ],
+      "prerequisites": [
+        "09-1"
+      ],
+      "quiz": {
+        "question": "Target group nên chuyển đến đâu trong kiến trúc hiện tại?",
+        "options": [
+          "Cổng 5432 của RDS",
+          "HTTP cổng 80 trên EC2 chạy Nginx",
+          "Loopback 127.0.0.1 của laptop"
+        ],
+        "answer": 1,
+        "explanation": "ALB gọi Nginx trên cổng 80 của EC2; Nginx mới proxy tới Node cổng 3000."
+      }
+    },
+    {
+      "id": "09-3",
+      "title": "Health khác readiness",
+      "minutes": 10,
+      "kind": "challenge",
+      "services": [
+        "ALB",
+        "RDS"
+      ],
+      "prerequisites": [
+        "09-2"
+      ],
+      "quiz": {
+        "question": "DB hỏng trong khi Node còn sống thì điều gì đúng?",
+        "options": [
+          "Cả hai endpoint bắt buộc 200",
+          "ALB luôn chặn tuyệt đối mọi target unhealthy",
+          "/health có thể 200 và /ready trả 503"
+        ],
+        "answer": 2,
+        "explanation": "Liveness chỉ phản ánh process; readiness kiểm tra DB. ALB còn có hành vi fail-open nếu tất cả target đều unhealthy."
+      }
+    },
+    {
+      "id": "09-4",
+      "title": "Tạo ALB và HTTP listener",
+      "minutes": 20,
+      "kind": "lab",
+      "services": [
+        "ALB",
+        "VPC"
+      ],
+      "prerequisites": [
+        "09-3"
+      ],
+      "quiz": {
+        "question": "Listener HTTP 80 cần default action nào để gọi app?",
+        "options": [
+          "Forward tới target group Nginx",
+          "Forward trực tiếp tới RDS",
+          "Redirect liên tục về chính HTTP 80"
+        ],
+        "answer": 0,
+        "explanation": "Listener nhận frontend request và forward tới target group đã đăng ký EC2 port 80."
+      }
+    },
+    {
+      "id": "09-5",
+      "title": "Chỉ cho ALB gọi EC2",
+      "minutes": 15,
+      "kind": "challenge",
+      "services": [
+        "Security Groups",
+        "ALB"
+      ],
+      "prerequisites": [
+        "09-4"
+      ],
+      "quiz": {
+        "question": "Rule inbound Nginx phù hợp sau khi ALB hoạt động là gì?",
+        "options": [
+          "TCP 80 từ mọi IPv4 bất kể nhu cầu",
+          "TCP 80 từ SG của ALB",
+          "TCP 3000 và 5432 từ Internet"
+        ],
+        "answer": 1,
+        "explanation": "Tham chiếu SG ALB giới hạn nguồn đến Nginx mà không cần hardcode IP node ALB."
+      }
+    }
+  ]
+}
