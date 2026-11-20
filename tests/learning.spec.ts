@@ -154,6 +154,10 @@ test("main learning screens have no serious accessibility violations", async ({
   for (const route of ["", "#/lesson/01-1", "#/roadmap", "#/settings"]) {
     await page.goto("./" + route);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    if (route === "") {
+      // Sample contrast after the entrance fade, rather than at a transient opacity.
+      await expect(page.locator(".architecture")).toHaveCSS("opacity", "1");
+    }
     const scan = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
       .analyze();
