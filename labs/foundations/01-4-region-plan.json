@@ -1,0 +1,19 @@
+{
+  "purpose": "Planning worksheet only; no AWS resources have been created by this file",
+  "verificationStatus": "not_checked",
+  "candidateRegion": "ap-southeast-1",
+  "selectionReason": "",
+  "observedAt": null,
+  "availabilityZones": [
+    { "label": "AZ_A", "observedName": null, "observedId": null },
+    { "label": "AZ_B", "observedName": null, "observedId": null }
+  ],
+  "plannedSubnets": [
+    { "name": "public-a", "zoneLabel": "AZ_A", "purpose": "Initial EC2; later ALB" },
+    { "name": "public-b", "zoneLabel": "AZ_B", "purpose": "Later ALB" },
+    { "name": "private-a", "zoneLabel": "AZ_A", "purpose": "DB subnet group" },
+    { "name": "private-b", "zoneLabel": "AZ_B", "purpose": "DB subnet group" }
+  ],
+  "singlePointsOfFailure": ["One initial EC2 app instance", "Database deployment mode not yet chosen"],
+  "multiAzDatabaseVerified": false
+}

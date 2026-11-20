@@ -52,6 +52,18 @@
           "summary": "Add concrete 201/302/404 exchanges and a Mermaid sequence with separate redirect requests.",
           "commitSubject": "docs(lesson-01-3): add HTTP exchanges and sequence diagram",
           "recordedAt": "2026-11-20T08:39:11+07:00"
+        },
+        {
+          "id": "01-4",
+          "title": "Region và Availability Zone",
+          "kind": "revision",
+          "contentPath": "content/day-01/4.md",
+          "artifacts": [
+            "labs/foundations/01-4-region-plan.json"
+          ],
+          "summary": "Add single-AZ failure analysis and an explicitly unverified Region planning template.",
+          "commitSubject": "docs(lesson-01-4): add AZ failure analysis and region worksheet",
+          "recordedAt": "2026-11-20T08:39:11+07:00"
         }
       ]
     }
