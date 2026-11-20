@@ -1,0 +1,5 @@
+scenario,assumptions,request_during_event,old_code_after_recovery,recovery_reasoning,exercise_status
+node_restart,Committed row and DB volume preserved,,,,NOT_FILLED
+postgres_restart,Committed row and DB volume preserved; normal database recovery,,,,NOT_FILLED
+volume_deleted,Old volume removed and replaced by empty database,,,,NOT_FILLED
+wrong_localhost,Browser runs on laptop but app runs on EC2,,,,NOT_FILLED

@@ -28,6 +28,18 @@
           "summary": "Add request-failure reasoning, lost-response and retry limitations, and a three-case worksheet.",
           "commitSubject": "docs(lesson-01-1): expand request failure and retry exercises",
           "recordedAt": "2026-11-20T08:36:37+07:00"
+        },
+        {
+          "id": "01-2",
+          "title": "Client, server và database",
+          "kind": "revision",
+          "contentPath": "content/day-01/2.md",
+          "artifacts": [
+            "labs/foundations/01-2-data-lifetimes.csv"
+          ],
+          "summary": "Add restart and volume-loss reasoning, connection boundaries, and a four-scenario worksheet.",
+          "commitSubject": "docs(lesson-01-2): add data lifetime and connection exercises",
+          "recordedAt": "2026-11-20T08:39:11+07:00"
         }
       ]
     }
