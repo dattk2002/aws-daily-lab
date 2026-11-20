@@ -1,0 +1,4 @@
+scenario,hypothesis,client_observation,client_can_conclude,next_evidence_to_seek,exercise_status
+before_insert,DB connection fails before INSERT is sent,503 if HTTP connection survives,,,NOT_FILLED
+success,INSERT commits and response reaches client,201 with code and shortUrl,,,NOT_FILLED
+response_lost,INSERT commits but client connection closes before response,Connection error or timeout,,,NOT_FILLED

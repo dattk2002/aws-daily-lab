@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "mode": "on_request",
+  "trigger": "chạy 5 bài",
+  "lessonsPerBatch": 5,
+  "commitsPerLesson": 1,
+  "legacySnapshot": {
+    "commit": "ad27dfe075d85fd1d4171bf2cd06b84114ee4129",
+    "lessonCount": 100,
+    "status": "already_public",
+    "countsAsRequestedBatch": false
+  },
+  "batches": [
+    {
+      "id": "batch-0001",
+      "trigger": "chạy 5 bài",
+      "status": "in_progress",
+      "note": "Substantive revisions of already-public lessons; not learner completion records.",
+      "lessons": [
+        {
+          "id": "01-1",
+          "title": "AWS trong một request",
+          "kind": "revision",
+          "contentPath": "content/day-01/1.md",
+          "artifacts": [
+            "labs/foundations/01-1-request-cases.csv"
+          ],
+          "summary": "Add request-failure reasoning, lost-response and retry limitations, and a three-case worksheet.",
+          "commitSubject": "docs(lesson-01-1): expand request failure and retry exercises",
+          "recordedAt": "2026-11-20T08:36:37+07:00"
+        }
+      ]
+    }
+  ]
+}
