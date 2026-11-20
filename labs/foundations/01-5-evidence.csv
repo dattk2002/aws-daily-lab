@@ -1,0 +1,9 @@
+case_id,precondition,action,expected,environment,observed_at,test_data,actual,evidence_path,status
+health,App running,GET /health,200 with status ok,,,,,,NOT_RUN
+ready,App and PostgreSQL running,GET /ready,200 with status ready,,,,,,NOT_RUN
+create,Schema initialized,POST /shorten with public test URL,201 with code and shortUrl,,,,,,NOT_RUN
+redirect,Create case succeeded,GET /r/code from create case,302 with normalized test URL in Location,,,,,,NOT_RUN
+node_restart,Create case succeeded; DB preserved,Restart local Node then GET same old code,302 with same Location,,,,,,NOT_RUN
+unknown_code,DB reachable; code AAAAAAAA confirmed absent,GET /r/AAAAAAAA,404 with no Location,,,,,,NOT_RUN
+db_down,Local disposable DB only; app still running,Stop local DB then GET /health and GET /ready,health 200 and ready 503,,,,,,NOT_RUN
+db_recovery,Local DB stopped by previous case,Start DB then check ready and create/open a new link,ready 200 then POST 201 and GET 302,,,,,,NOT_RUN

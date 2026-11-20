@@ -14,7 +14,7 @@
     {
       "id": "batch-0001",
       "trigger": "chạy 5 bài",
-      "status": "in_progress",
+      "status": "complete",
       "note": "Substantive revisions of already-public lessons; not learner completion records.",
       "lessons": [
         {
@@ -63,6 +63,18 @@
           ],
           "summary": "Add single-AZ failure analysis and an explicitly unverified Region planning template.",
           "commitSubject": "docs(lesson-01-4): add AZ failure analysis and region worksheet",
+          "recordedAt": "2026-11-20T08:39:11+07:00"
+        },
+        {
+          "id": "01-5",
+          "title": "Chọn kết quả cần chứng minh",
+          "kind": "revision",
+          "contentPath": "content/day-01/5.md",
+          "artifacts": [
+            "labs/foundations/01-5-evidence.csv"
+          ],
+          "summary": "Add an eight-case evidence worksheet, honest test statuses, and SELECT 1 readiness limitations.",
+          "commitSubject": "docs(lesson-01-5): add evidence worksheet and readiness limits",
           "recordedAt": "2026-11-20T08:39:11+07:00"
         }
       ]
