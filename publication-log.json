@@ -40,6 +40,18 @@
           "summary": "Add restart and volume-loss reasoning, connection boundaries, and a four-scenario worksheet.",
           "commitSubject": "docs(lesson-01-2): add data lifetime and connection exercises",
           "recordedAt": "2026-11-20T08:39:11+07:00"
+        },
+        {
+          "id": "01-3",
+          "title": "Vẽ sơ đồ URL shortener",
+          "kind": "revision",
+          "contentPath": "content/day-01/3.md",
+          "artifacts": [
+            "labs/foundations/01-3-request-sequence.mmd"
+          ],
+          "summary": "Add concrete 201/302/404 exchanges and a Mermaid sequence with separate redirect requests.",
+          "commitSubject": "docs(lesson-01-3): add HTTP exchanges and sequence diagram",
+          "recordedAt": "2026-11-20T08:39:11+07:00"
         }
       ]
     }

@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant C as Client
+    participant N as Node.js HTTP API
+    participant P as PostgreSQL
+    participant W as Website dich
+    Note over C,W: Vi du thiet ke; chua phai ket qua chay that
+    C->>N: POST /shorten (URL)
+    N->>P: INSERT code va URL
+    P-->>N: Ghi thanh cong
+    N-->>C: 201 JSON (code, shortUrl)
+    C->>N: GET /r/code
+    N->>P: SELECT URL theo code
+    P-->>N: URL hoac khong co hang
+    alt Tim thay code
+        N-->>C: 302 Location
+        C->>W: GET URL dich
+        W-->>C: Response cua website dich
+    else Khong tim thay code
+        N-->>C: 404 JSON; khong co Location
+    end
